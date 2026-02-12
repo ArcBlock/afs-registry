@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AFS Provider Registry",
+  "description": "Schema for the AFS provider registry manifest file",
+  "type": "object",
+  "required": ["providers"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "providers": {
+      "type": "array",
+      "description": "List of provider manifests",
+      "items": {
+        "$ref": "#/definitions/ProviderManifest"
+      }
+    }
+  },
+  "definitions": {
+    "ProviderManifest": {
+      "type": "object",
+      "required": ["name", "description", "category", "uri", "capabilities_summary"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique provider name"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable description"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "storage",
+            "version-control",
+            "database",
+            "structured-data",
+            "compute",
+            "composite",
+            "cloud",
+            "network",
+            "api"
+          ],
+          "description": "Provider category"
+        },
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Base URI for mounting. Agent appends config_schema params as query string."
+        },
+        "capabilities_summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Summary of provider capabilities"
+        },
+        "config_schema": {
+          "type": "object",
+          "description": "JSON Schema describing dynamic parameters the agent must provide. Omit if the URI is ready to use as-is.",
+          "properties": {
+            "type": { "type": "string", "const": "object" },
+            "properties": { "type": "object" },
+            "required": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Searchable tags"
+        },
+        "use_cases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Common use cases"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

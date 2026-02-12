@@ -1,0 +1,215 @@
+{
+  "$schema": "./providers.schema.json",
+  "providers": [
+    {
+      "name": "s3",
+      "description": "AWS S3 and S3-compatible storage (MinIO, Cloudflare R2, Backblaze B2)",
+      "category": "storage",
+      "uri": "npm://@aigne/afs-s3",
+      "capabilities_summary": "list, read, write, delete, search, stat, explain; multipart upload, S3 Select queries, signed URLs, LRU caching",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "bucket": { "type": "string", "description": "S3 bucket name" },
+          "prefix": { "type": "string", "description": "Key prefix for scoping access" },
+          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)" },
+          "endpoint": { "type": "string", "description": "Custom endpoint URL for S3-compatible services" }
+        },
+        "required": ["bucket"]
+      },
+      "tags": ["aws", "s3", "minio", "r2", "b2", "object-storage", "cloud"],
+      "use_cases": [
+        "Access S3 buckets as virtual filesystem",
+        "Upload and download files with multipart support",
+        "Query object contents via S3 Select",
+        "Manage objects across S3-compatible storage services"
+      ]
+    },
+    {
+      "name": "gcs",
+      "description": "Google Cloud Storage buckets and objects",
+      "category": "storage",
+      "uri": "npm://@aigne/afs-gcs",
+      "capabilities_summary": "list, read, write, delete, search, stat, explain; object composition, signed URLs, LRU caching",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "bucket": { "type": "string", "description": "GCS bucket name" },
+          "prefix": { "type": "string", "description": "Key prefix for scoping access" },
+          "projectId": { "type": "string", "description": "Google Cloud project ID" }
+        },
+        "required": ["bucket"]
+      },
+      "tags": ["gcp", "google-cloud", "gcs", "object-storage", "cloud"],
+      "use_cases": [
+        "Access GCS buckets as virtual filesystem",
+        "Compose multiple objects into a single object",
+        "Manage Google Cloud Storage objects through path-based interface"
+      ]
+    },
+    {
+      "name": "ec2",
+      "description": "AWS EC2 compute instance management and monitoring",
+      "category": "compute",
+      "uri": "npm://@aigne/afs-ec2",
+      "capabilities_summary": "list, read, write, delete, stat, search, explain, exec; instance lifecycle (start/stop/reboot/terminate), tag management, console output and screenshots",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "regions": { "type": "string", "description": "Comma-separated AWS regions (e.g., us-east-1,us-west-2)" },
+          "profile": { "type": "string", "description": "AWS credentials profile name" }
+        },
+        "required": ["regions"]
+      },
+      "tags": ["aws", "ec2", "compute", "instances", "cloud", "virtual-machines"],
+      "use_cases": [
+        "Monitor EC2 instance status and metadata",
+        "Manage instance lifecycle (start, stop, reboot, terminate)",
+        "View console output and screenshots",
+        "Manage instance tags"
+      ]
+    },
+    {
+      "name": "gce",
+      "description": "Google Compute Engine instance management and monitoring",
+      "category": "compute",
+      "uri": "npm://@aigne/afs-gce",
+      "capabilities_summary": "list, read, write, delete, stat, explain, exec; instance lifecycle (start/stop/reset), label management, status grouping",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "projectId": { "type": "string", "description": "Google Cloud project ID" },
+          "zone": { "type": "string", "description": "GCE zone (e.g., us-central1-a)" }
+        },
+        "required": ["projectId", "zone"]
+      },
+      "tags": ["gcp", "google-cloud", "gce", "compute", "instances", "cloud", "virtual-machines"],
+      "use_cases": [
+        "Monitor GCE instance status and metadata",
+        "Manage instance lifecycle (start, stop, reset)",
+        "Update instance labels",
+        "View instances grouped by status"
+      ]
+    },
+    {
+      "name": "dns",
+      "description": "Unified DNS management across AWS Route53 and Google Cloud DNS",
+      "category": "network",
+      "uri": "npm://@aigne/afs-dns",
+      "capabilities_summary": "list, read, write, delete, stat, search, explain; multi-cloud DNS adapters, permission-based access control, audit logging, input validation",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "zoneDomain": { "type": "string", "description": "DNS zone domain (e.g., example.com)" },
+          "provider": { "type": "string", "enum": ["route53", "clouddns"], "description": "Cloud DNS provider" }
+        },
+        "required": ["zoneDomain", "provider"]
+      },
+      "tags": ["dns", "route53", "cloud-dns", "aws", "gcp", "network", "cloud"],
+      "use_cases": [
+        "Manage DNS zones and records across cloud providers",
+        "Unified DNS interface for Route53 and Google Cloud DNS",
+        "Secure zone administration with audit logging"
+      ]
+    },
+    {
+      "name": "cloudflare",
+      "description": "Cloudflare Developer Platform resources (Workers, KV, Pages, DNS zones)",
+      "category": "cloud",
+      "uri": "npm://@aigne/afs-cloudflare",
+      "capabilities_summary": "list, read, write, delete, search, stat, explain; KV namespaces, Worker scripts, Pages projects, DNS zone management",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "accountId": { "type": "string", "description": "Cloudflare account ID" },
+          "apiToken": { "type": "string", "description": "Cloudflare API token" }
+        }
+      },
+      "tags": ["cloudflare", "workers", "kv", "pages", "dns", "edge", "cloud"],
+      "use_cases": [
+        "Manage Cloudflare KV storage as virtual filesystem",
+        "Deploy and manage Cloudflare Workers",
+        "Browse and manage Pages projects",
+        "Configure DNS zones and records via Cloudflare"
+      ]
+    },
+    {
+      "name": "github",
+      "description": "GitHub Issues, Pull Requests, and Actions as virtual filesystem paths",
+      "category": "api",
+      "uri": "npm://@aigne/afs-github",
+      "capabilities_summary": "list, read, write, delete, search, stat, explain, exec; issue/PR CRUD, workflow triggering, comment management, world mapping, rate-limit aware caching",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "owner": { "type": "string", "description": "GitHub user or organization name" },
+          "repo": { "type": "string", "description": "Repository name (omit for org-level access)" }
+        },
+        "required": ["owner"]
+      },
+      "tags": ["github", "issues", "pull-requests", "actions", "devops", "api"],
+      "use_cases": [
+        "Access GitHub issues and PRs as files",
+        "Create and manage issues programmatically",
+        "Browse repository structure and workflow results",
+        "Comment on issues and review pull requests"
+      ]
+    },
+    {
+      "name": "http",
+      "description": "HTTP/HTTPS transport for accessing remote AFS instances",
+      "category": "api",
+      "uri": "http://",
+      "capabilities_summary": "read, list, exec, search; JSON-RPC protocol, automatic retry, token-based auth, Express/Koa server adapters",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "Remote AFS server URL (e.g., http://localhost:3000/afs)" }
+        },
+        "required": ["url"]
+      },
+      "tags": ["http", "https", "remote", "transport", "network", "api"],
+      "use_cases": [
+        "Access remote AFS instances over HTTP",
+        "Expose local AFS as HTTP service",
+        "Bridge HTTP endpoints to AFS interface"
+      ]
+    },
+    {
+      "name": "mcp",
+      "description": "MCP (Model Context Protocol) server integration for tools, prompts, and resources",
+      "category": "api",
+      "uri": "mcp+stdio://",
+      "capabilities_summary": "list, read, exec, search, stat, explain; MCP tools execution, prompt access, resource templates, WORLD.md generation; stdio/HTTP/SSE transports",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "command": { "type": "string", "description": "MCP server command to execute" },
+          "args": { "type": "string", "description": "Command arguments (comma-separated)" }
+        },
+        "required": ["command"]
+      },
+      "tags": ["mcp", "model-context-protocol", "llm", "tools", "prompts", "ai"],
+      "use_cases": [
+        "Mount MCP servers as AFS modules",
+        "Execute LLM tools through AFS interface",
+        "Access MCP prompts and resources",
+        "Generate WORLD.md documentation for MCP server capabilities"
+      ]
+    },
+    {
+      "name": "sandbox",
+      "description": "Isolated JavaScript code execution with script management and auditing",
+      "category": "compute",
+      "uri": "npm://@aigne/afs-sandbox",
+      "capabilities_summary": "exec, read, write, delete; QuickJS-based isolation, script versioning, execution history, rate limiting, built-in templates, promoted actions",
+      "tags": ["sandbox", "javascript", "execution", "isolation", "scripting", "security"],
+      "use_cases": [
+        "Execute user-provided JavaScript code safely",
+        "Manage and version scripts with audit trail",
+        "Promote tested scripts to formal actions",
+        "Template-based script generation with metrics tracking"
+      ]
+    }
+  ]
+}
