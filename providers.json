@@ -230,6 +230,55 @@
         "Promote tested scripts to formal actions",
         "Template-based script generation with metrics tracking"
       ]
+    },
+    {
+      "name": "playwright",
+      "description": "Browser automation via Playwright MCP server — interact with web pages through accessibility snapshots and screenshots",
+      "category": "api",
+      "uri": "mcp+stdio://npx @playwright/mcp --browser {browser}",
+      "capabilities_summary": "list, read, exec; browser navigation, element interaction, screenshot capture, JavaScript evaluation, file upload/download, PDF generation, network monitoring",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "browser": { "type": "string", "enum": ["chromium", "firefox", "webkit"], "description": "Browser engine to use (default: chromium)" },
+          "headless": { "type": "string", "enum": ["true", "false"], "description": "Run browser in headless mode (default: false, headed)" },
+          "viewportSize": { "type": "string", "description": "Browser viewport size (e.g., 1280x720)" },
+          "userDataDir": { "type": "string", "description": "Path to persistent browser profile directory" },
+          "storageState": { "type": "string", "description": "Path to file with cookies and localStorage to restore session" },
+          "device": { "type": "string", "description": "Emulate a device (e.g., iPhone 15, Pixel 7)" }
+        }
+      },
+      "tags": ["playwright", "browser", "automation", "testing", "web", "screenshots", "accessibility", "mcp"],
+      "use_cases": [
+        "Automate web browsing and form filling via AI agents",
+        "Capture screenshots and PDFs of web pages",
+        "Test web applications through natural language instructions",
+        "Scrape web content through accessibility snapshots"
+      ]
+    },
+    {
+      "name": "minecraft",
+      "description": "Minecraft server management and bot control via RCON and Mineflayer — execute commands, monitor game state, and automate gameplay",
+      "category": "api",
+      "uri": "mcp+stdio://npx @mseep/mcp-minecraft",
+      "capabilities_summary": "list, read, exec; RCON command execution, bot navigation, inventory management, block manipulation, entity interaction, real-time game state monitoring",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "host": { "type": "string", "description": "Minecraft server hostname or IP (default: localhost)", "env": ["MINECRAFT_HOST"] },
+          "port": { "type": "string", "description": "Minecraft server port (default: 25565)", "env": ["MINECRAFT_PORT"] },
+          "rconPort": { "type": "string", "description": "RCON port for server commands (default: 25575)", "env": ["RCON_PORT"] },
+          "rconPassword": { "type": "string", "description": "RCON password for server administration", "sensitive": true, "env": ["RCON_PASSWORD"] },
+          "username": { "type": "string", "description": "Bot player username", "env": ["MINECRAFT_USERNAME"] }
+        }
+      },
+      "tags": ["minecraft", "gaming", "rcon", "bot", "mineflayer", "automation", "mcp"],
+      "use_cases": [
+        "Execute Minecraft server commands remotely via AI",
+        "Control a Minecraft bot through natural language",
+        "Monitor server status, players, and game state",
+        "Automate building, mining, and resource management"
+      ]
     }
   ]
 }
