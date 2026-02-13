@@ -5,15 +5,19 @@
       "name": "s3",
       "description": "AWS S3 and S3-compatible storage (MinIO, Cloudflare R2, Backblaze B2)",
       "category": "storage",
-      "uri": "npm://@aigne/afs-s3",
+      "uri": "npm://@aigne/afs-s3?bucket={bucket}&prefix={prefix}&region={region}&endpoint={endpoint}",
       "capabilities_summary": "list, read, write, delete, search, stat, explain; multipart upload, S3 Select queries, signed URLs, LRU caching",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
           "bucket": { "type": "string", "description": "S3 bucket name" },
           "prefix": { "type": "string", "description": "Key prefix for scoping access" },
-          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)" },
-          "endpoint": { "type": "string", "description": "Custom endpoint URL for S3-compatible services" }
+          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)", "env": ["AWS_REGION", "AWS_DEFAULT_REGION"] },
+          "endpoint": { "type": "string", "description": "Custom endpoint URL for S3-compatible services" },
+          "accessKeyId": { "type": "string", "description": "AWS access key ID", "sensitive": true, "env": ["AWS_ACCESS_KEY_ID"] },
+          "secretAccessKey": { "type": "string", "description": "AWS secret access key", "sensitive": true, "env": ["AWS_SECRET_ACCESS_KEY"] },
+          "sessionToken": { "type": "string", "description": "AWS session token (for temporary credentials)", "sensitive": true, "env": ["AWS_SESSION_TOKEN"] },
+          "profile": { "type": "string", "description": "AWS credentials profile name", "env": ["AWS_PROFILE"] }
         },
         "required": ["bucket"]
       },
@@ -29,14 +33,17 @@
       "name": "gcs",
       "description": "Google Cloud Storage buckets and objects",
       "category": "storage",
-      "uri": "npm://@aigne/afs-gcs",
+      "uri": "npm://@aigne/afs-gcs?bucket={bucket}&prefix={prefix}&projectId={projectId}",
       "capabilities_summary": "list, read, write, delete, search, stat, explain; object composition, signed URLs, LRU caching",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
           "bucket": { "type": "string", "description": "GCS bucket name" },
           "prefix": { "type": "string", "description": "Key prefix for scoping access" },
-          "projectId": { "type": "string", "description": "Google Cloud project ID" }
+          "projectId": { "type": "string", "description": "Google Cloud project ID", "env": ["GCLOUD_PROJECT", "GCP_PROJECT_ID"] },
+          "keyFilename": { "type": "string", "description": "Path to service account key file", "env": ["GOOGLE_APPLICATION_CREDENTIALS"] },
+          "clientEmail": { "type": "string", "description": "Service account client email", "sensitive": true },
+          "privateKey": { "type": "string", "description": "Service account private key", "sensitive": true }
         },
         "required": ["bucket"]
       },
@@ -51,13 +58,16 @@
       "name": "ec2",
       "description": "AWS EC2 compute instance management and monitoring",
       "category": "compute",
-      "uri": "npm://@aigne/afs-ec2",
+      "uri": "npm://@aigne/afs-ec2?regions={regions}&profile={profile}",
       "capabilities_summary": "list, read, write, delete, stat, search, explain, exec; instance lifecycle (start/stop/reboot/terminate), tag management, console output and screenshots",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
           "regions": { "type": "string", "description": "Comma-separated AWS regions (e.g., us-east-1,us-west-2)" },
-          "profile": { "type": "string", "description": "AWS credentials profile name" }
+          "profile": { "type": "string", "description": "AWS credentials profile name", "env": ["AWS_PROFILE"] },
+          "accessKeyId": { "type": "string", "description": "AWS access key ID", "sensitive": true, "env": ["AWS_ACCESS_KEY_ID"] },
+          "secretAccessKey": { "type": "string", "description": "AWS secret access key", "sensitive": true, "env": ["AWS_SECRET_ACCESS_KEY"] },
+          "sessionToken": { "type": "string", "description": "AWS session token (for temporary credentials)", "sensitive": true, "env": ["AWS_SESSION_TOKEN"] }
         },
         "required": ["regions"]
       },
@@ -73,13 +83,16 @@
       "name": "gce",
       "description": "Google Compute Engine instance management and monitoring",
       "category": "compute",
-      "uri": "npm://@aigne/afs-gce",
+      "uri": "npm://@aigne/afs-gce?projectId={projectId}&zone={zone}",
       "capabilities_summary": "list, read, write, delete, stat, explain, exec; instance lifecycle (start/stop/reset), label management, status grouping",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
-          "projectId": { "type": "string", "description": "Google Cloud project ID" },
-          "zone": { "type": "string", "description": "GCE zone (e.g., us-central1-a)" }
+          "projectId": { "type": "string", "description": "Google Cloud project ID", "env": ["GCLOUD_PROJECT", "GCP_PROJECT_ID"] },
+          "zone": { "type": "string", "description": "GCE zone (e.g., us-central1-a)" },
+          "keyFilename": { "type": "string", "description": "Path to service account key file", "env": ["GOOGLE_APPLICATION_CREDENTIALS"] },
+          "clientEmail": { "type": "string", "description": "Service account client email", "sensitive": true },
+          "privateKey": { "type": "string", "description": "Service account private key", "sensitive": true }
         },
         "required": ["projectId", "zone"]
       },
@@ -95,13 +108,18 @@
       "name": "dns",
       "description": "Unified DNS management across AWS Route53 and Google Cloud DNS",
       "category": "network",
-      "uri": "npm://@aigne/afs-dns",
+      "uri": "npm://@aigne/afs-dns?zoneDomain={zoneDomain}&provider={provider}",
       "capabilities_summary": "list, read, write, delete, stat, search, explain; multi-cloud DNS adapters, permission-based access control, audit logging, input validation",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
           "zoneDomain": { "type": "string", "description": "DNS zone domain (e.g., example.com)" },
-          "provider": { "type": "string", "enum": ["route53", "clouddns"], "description": "Cloud DNS provider" }
+          "provider": { "type": "string", "enum": ["route53", "clouddns"], "description": "Cloud DNS provider" },
+          "region": { "type": "string", "description": "AWS region (for Route53)", "env": ["AWS_REGION"] },
+          "accessKeyId": { "type": "string", "description": "AWS access key ID (for Route53)", "sensitive": true, "env": ["AWS_ACCESS_KEY_ID"] },
+          "secretAccessKey": { "type": "string", "description": "AWS secret access key (for Route53)", "sensitive": true, "env": ["AWS_SECRET_ACCESS_KEY"] },
+          "projectId": { "type": "string", "description": "Google Cloud project ID (for Cloud DNS)", "env": ["GCLOUD_PROJECT"] },
+          "keyFilename": { "type": "string", "description": "Path to service account key file (for Cloud DNS)", "env": ["GOOGLE_APPLICATION_CREDENTIALS"] }
         },
         "required": ["zoneDomain", "provider"]
       },
@@ -116,13 +134,13 @@
       "name": "cloudflare",
       "description": "Cloudflare Developer Platform resources (Workers, KV, Pages, DNS zones)",
       "category": "cloud",
-      "uri": "npm://@aigne/afs-cloudflare",
+      "uri": "npm://@aigne/afs-cloudflare?accountId={accountId}&apiToken={apiToken}",
       "capabilities_summary": "list, read, write, delete, search, stat, explain; KV namespaces, Worker scripts, Pages projects, DNS zone management",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
-          "accountId": { "type": "string", "description": "Cloudflare account ID" },
-          "apiToken": { "type": "string", "description": "Cloudflare API token" }
+          "accountId": { "type": "string", "description": "Cloudflare account ID", "env": ["CLOUDFLARE_ACCOUNT_ID", "CF_ACCOUNT_ID"] },
+          "apiToken": { "type": "string", "description": "Cloudflare API token", "sensitive": true, "env": ["CLOUDFLARE_API_TOKEN", "CF_API_TOKEN"] }
         }
       },
       "tags": ["cloudflare", "workers", "kv", "pages", "dns", "edge", "cloud"],
@@ -137,13 +155,14 @@
       "name": "github",
       "description": "GitHub Issues, Pull Requests, and Actions as virtual filesystem paths",
       "category": "api",
-      "uri": "npm://@aigne/afs-github",
+      "uri": "github://{owner}/{repo}",
       "capabilities_summary": "list, read, write, delete, search, stat, explain, exec; issue/PR CRUD, workflow triggering, comment management, world mapping, rate-limit aware caching",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
           "owner": { "type": "string", "description": "GitHub user or organization name" },
-          "repo": { "type": "string", "description": "Repository name (omit for org-level access)" }
+          "repo": { "type": "string", "description": "Repository name (omit for org-level access)" },
+          "token": { "type": "string", "description": "GitHub personal access token", "sensitive": true, "env": ["GITHUB_TOKEN", "GH_TOKEN"] }
         },
         "required": ["owner"]
       },
@@ -159,12 +178,13 @@
       "name": "http",
       "description": "HTTP/HTTPS transport for accessing remote AFS instances",
       "category": "api",
-      "uri": "http://",
+      "uri": "{url}",
       "capabilities_summary": "read, list, exec, search; JSON-RPC protocol, automatic retry, token-based auth, Express/Koa server adapters",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
-          "url": { "type": "string", "description": "Remote AFS server URL (e.g., http://localhost:3000/afs)" }
+          "url": { "type": "string", "description": "Remote AFS server URL (e.g., http://localhost:3000/afs)" },
+          "token": { "type": "string", "description": "Bearer token for authentication", "sensitive": true }
         },
         "required": ["url"]
       },
@@ -179,9 +199,9 @@
       "name": "mcp",
       "description": "MCP (Model Context Protocol) server integration for tools, prompts, and resources",
       "category": "api",
-      "uri": "mcp+stdio://",
+      "uri": "mcp+stdio://{command}",
       "capabilities_summary": "list, read, exec, search, stat, explain; MCP tools execution, prompt access, resource templates, WORLD.md generation; stdio/HTTP/SSE transports",
-      "config_schema": {
+      "schema": {
         "type": "object",
         "properties": {
           "command": { "type": "string", "description": "MCP server command to execute" },

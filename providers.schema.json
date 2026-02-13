@@ -18,6 +18,28 @@
     }
   },
   "definitions": {
+    "ConfigSchemaProperty": {
+      "type": "object",
+      "description": "JSON Schema property with optional AFS credential metadata",
+      "properties": {
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "enum": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "sensitive": {
+          "type": "boolean",
+          "description": "When true, this field contains sensitive data (tokens, keys, passwords). Sensitive fields are stored in credentials.toml (chmod 600) and collected via secure channels (MCP URL mode / CLI masked input)."
+        },
+        "env": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Environment variable names to check for this field's value, in priority order (e.g. [\"GITHUB_TOKEN\", \"GH_TOKEN\"]). Used for silent credential resolution before prompting the user."
+        }
+      },
+      "required": ["type"]
+    },
     "ProviderManifest": {
       "type": "object",
       "required": ["name", "description", "category", "uri", "capabilities_summary"],
@@ -50,19 +72,24 @@
         "uri": {
           "type": "string",
           "minLength": 1,
-          "description": "Base URI for mounting. Agent appends config_schema params as query string."
+          "description": "Base URI for mounting. Agent appends schema params as query string."
         },
         "capabilities_summary": {
           "type": "string",
           "minLength": 1,
           "description": "Summary of provider capabilities"
         },
-        "config_schema": {
+        "schema": {
           "type": "object",
-          "description": "JSON Schema describing dynamic parameters the agent must provide. Omit if the URI is ready to use as-is.",
+          "description": "JSON Schema describing dynamic parameters the agent must provide. Each property may include 'sensitive' (boolean) and 'env' (string[]) for credential management. Omit if the URI is ready to use as-is.",
           "properties": {
             "type": { "type": "string", "const": "object" },
-            "properties": { "type": "object" },
+            "properties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/ConfigSchemaProperty"
+              }
+            },
             "required": {
               "type": "array",
               "items": { "type": "string" }
