@@ -2,8 +2,104 @@
   "$schema": "./providers.schema.json",
   "providers": [
     {
+      "name": "fs",
+      "description": "Mount a local filesystem directory",
+      "category": "storage",
+      "uriTemplate": "fs://{localPath+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "localPath": { "type": "string", "description": "The path to the local directory to mount" }
+        },
+        "required": ["localPath"]
+      },
+      "tags": ["local", "filesystem", "storage"],
+      "useCases": [
+        "Access local directories as virtual filesystem",
+        "Read and write files with .gitignore/.afsignore support",
+        "Mount project source code for AI agent access"
+      ]
+    },
+    {
+      "name": "git",
+      "description": "Mount a local Git repository",
+      "category": "version-control",
+      "uriTemplate": "git://{localPath+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "localPath": { "type": "string", "description": "Path to the git repository" },
+          "branch": { "type": "string", "description": "Branch to checkout" },
+          "remoteUrl": { "type": "string", "description": "Remote repository URL (https or git protocol)" }
+        }
+      },
+      "tags": ["git", "version-control", "repository"],
+      "useCases": [
+        "Access Git repository branches and files",
+        "Browse repository history and diffs",
+        "Readwrite mode with auto-commit via git worktrees"
+      ]
+    },
+    {
+      "name": "json",
+      "description": "Mount a JSON or YAML file as a virtual filesystem",
+      "category": "structured-data",
+      "uriTemplate": "json://{localPath+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "localPath": { "type": "string", "description": "The path to the JSON/YAML file to mount" }
+        },
+        "required": ["localPath"]
+      },
+      "tags": ["json", "yaml", "structured-data"],
+      "useCases": [
+        "Navigate JSON/YAML files as virtual filesystems",
+        "Read and write individual fields via path-based access",
+        "Supports both JSON and YAML formats"
+      ]
+    },
+    {
+      "name": "toml",
+      "description": "Mount a TOML file as a virtual filesystem",
+      "category": "structured-data",
+      "uriTemplate": "toml://{localPath+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "localPath": { "type": "string", "description": "The path to the TOML file to mount" }
+        },
+        "required": ["localPath"]
+      },
+      "tags": ["toml", "structured-data", "config"],
+      "useCases": [
+        "Navigate TOML files as virtual filesystems",
+        "Read and write individual fields via path-based access",
+        "Manage configuration files through AFS interface"
+      ]
+    },
+    {
+      "name": "sqlite",
+      "description": "Mount a SQLite database as a virtual filesystem",
+      "category": "database",
+      "uriTemplate": "sqlite://{localPath+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "localPath": { "type": "string", "description": "Path to the SQLite database file" }
+        },
+        "required": ["localPath"]
+      },
+      "tags": ["sqlite", "database", "sql"],
+      "useCases": [
+        "Access SQLite databases as virtual filesystem",
+        "Query tables and rows via path-based access",
+        "Execute SQL operations through actions"
+      ]
+    },
+    {
       "name": "s3",
-      "description": "AWS S3 and S3-compatible storage (MinIO, Cloudflare R2, Backblaze B2)",
+      "description": "AWS S3 and S3-compatible object storage",
       "category": "cloud-storage",
       "uriTemplate": "s3://{bucket}/{prefix+?}",
       "schema": {
@@ -11,12 +107,11 @@
         "properties": {
           "bucket": { "type": "string", "description": "S3 bucket name" },
           "prefix": { "type": "string", "description": "Key prefix for scoping access" },
-          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)", "env": ["AWS_REGION", "AWS_DEFAULT_REGION"] },
+          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)" },
+          "accessKeyId": { "type": "string", "description": "AWS access key ID", "sensitive": true },
+          "secretAccessKey": { "type": "string", "description": "AWS secret access key", "sensitive": true },
           "endpoint": { "type": "string", "description": "Custom endpoint URL for S3-compatible services" },
-          "accessKeyId": { "type": "string", "description": "AWS access key ID", "sensitive": true, "env": ["AWS_ACCESS_KEY_ID"] },
-          "secretAccessKey": { "type": "string", "description": "AWS secret access key", "sensitive": true, "env": ["AWS_SECRET_ACCESS_KEY"] },
-          "sessionToken": { "type": "string", "description": "AWS session token (for temporary credentials)", "sensitive": true, "env": ["AWS_SESSION_TOKEN"] },
-          "profile": { "type": "string", "description": "AWS credentials profile name", "env": ["AWS_PROFILE"] }
+          "profile": { "type": "string", "description": "AWS credentials profile name" }
         },
         "required": ["bucket"]
       },
@@ -30,7 +125,7 @@
     },
     {
       "name": "gcs",
-      "description": "Google Cloud Storage buckets and objects",
+      "description": "Google Cloud Storage",
       "category": "cloud-storage",
       "uriTemplate": "gcs://{bucket}/{prefix+?}",
       "schema": {
@@ -38,10 +133,8 @@
         "properties": {
           "bucket": { "type": "string", "description": "GCS bucket name" },
           "prefix": { "type": "string", "description": "Key prefix for scoping access" },
-          "projectId": { "type": "string", "description": "Google Cloud project ID", "env": ["GCLOUD_PROJECT", "GCP_PROJECT_ID"] },
-          "keyFilename": { "type": "string", "description": "Path to service account key file", "env": ["GOOGLE_APPLICATION_CREDENTIALS"] },
-          "clientEmail": { "type": "string", "description": "Service account client email", "sensitive": true },
-          "privateKey": { "type": "string", "description": "Service account private key", "sensitive": true }
+          "projectId": { "type": "string", "description": "Google Cloud project ID" },
+          "keyFilename": { "type": "string", "description": "Path to service account key file" }
         },
         "required": ["bucket"]
       },
@@ -54,17 +147,15 @@
     },
     {
       "name": "ec2",
-      "description": "AWS EC2 compute instance management and monitoring",
+      "description": "AWS EC2 compute instances",
       "category": "cloud-compute",
       "uriTemplate": "ec2://{region?}",
       "schema": {
         "type": "object",
         "properties": {
-          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)", "env": ["AWS_REGION", "AWS_DEFAULT_REGION"] },
-          "profile": { "type": "string", "description": "AWS credentials profile name", "env": ["AWS_PROFILE"] },
-          "accessKeyId": { "type": "string", "description": "AWS access key ID", "sensitive": true, "env": ["AWS_ACCESS_KEY_ID"] },
-          "secretAccessKey": { "type": "string", "description": "AWS secret access key", "sensitive": true, "env": ["AWS_SECRET_ACCESS_KEY"] },
-          "sessionToken": { "type": "string", "description": "AWS session token (for temporary credentials)", "sensitive": true, "env": ["AWS_SESSION_TOKEN"] }
+          "region": { "type": "string", "description": "AWS region (e.g., us-east-1)" },
+          "profile": { "type": "string", "description": "AWS credentials profile name" },
+          "endpoint": { "type": "string", "description": "Custom EC2 endpoint URL" }
         }
       },
       "tags": ["aws", "ec2", "compute", "instances", "cloud", "virtual-machines"],
@@ -77,19 +168,17 @@
     },
     {
       "name": "gce",
-      "description": "Google Compute Engine instance management and monitoring",
+      "description": "Google Compute Engine instances",
       "category": "cloud-compute",
-      "uriTemplate": "gce://{projectId}/{zone}",
+      "uriTemplate": "gce://{project}/{zone}",
       "schema": {
         "type": "object",
         "properties": {
-          "projectId": { "type": "string", "description": "Google Cloud project ID", "env": ["GCLOUD_PROJECT", "GCP_PROJECT_ID"] },
+          "project": { "type": "string", "description": "Google Cloud project ID" },
           "zone": { "type": "string", "description": "GCE zone (e.g., us-central1-a)" },
-          "keyFilename": { "type": "string", "description": "Path to service account key file", "env": ["GOOGLE_APPLICATION_CREDENTIALS"] },
-          "clientEmail": { "type": "string", "description": "Service account client email", "sensitive": true },
-          "privateKey": { "type": "string", "description": "Service account private key", "sensitive": true }
+          "keyFilename": { "type": "string", "description": "Path to service account key file" }
         },
-        "required": ["projectId", "zone"]
+        "required": ["project", "zone"]
       },
       "tags": ["gcp", "google-cloud", "gce", "compute", "instances", "cloud", "virtual-machines"],
       "useCases": [
@@ -101,19 +190,13 @@
     },
     {
       "name": "dns",
-      "description": "Unified DNS management across AWS Route53 and Google Cloud DNS",
+      "description": "DNS zone management",
       "category": "cloud-dns",
       "uriTemplate": "dns://{zone}",
       "schema": {
         "type": "object",
         "properties": {
-          "zone": { "type": "string", "description": "DNS zone domain (e.g., example.com)" },
-          "provider": { "type": "string", "enum": ["route53", "clouddns"], "description": "Cloud DNS provider" },
-          "region": { "type": "string", "description": "AWS region (for Route53)", "env": ["AWS_REGION"] },
-          "accessKeyId": { "type": "string", "description": "AWS access key ID (for Route53)", "sensitive": true, "env": ["AWS_ACCESS_KEY_ID"] },
-          "secretAccessKey": { "type": "string", "description": "AWS secret access key (for Route53)", "sensitive": true, "env": ["AWS_SECRET_ACCESS_KEY"] },
-          "projectId": { "type": "string", "description": "Google Cloud project ID (for Cloud DNS)", "env": ["GCLOUD_PROJECT"] },
-          "keyFilename": { "type": "string", "description": "Path to service account key file (for Cloud DNS)", "env": ["GOOGLE_APPLICATION_CREDENTIALS"] }
+          "zone": { "type": "string", "description": "DNS zone domain (e.g., example.com)" }
         },
         "required": ["zone"]
       },
@@ -126,18 +209,17 @@
     },
     {
       "name": "cloudflare",
-      "description": "Cloudflare Developer Platform resources (Workers, KV, Pages, DNS zones)",
+      "description": "Cloudflare Workers, KV, and Pages",
       "category": "cloud-platform",
       "uriTemplate": "cloudflare://{accountId}",
       "schema": {
         "type": "object",
         "properties": {
-          "accountId": { "type": "string", "description": "Cloudflare account ID", "env": ["CLOUDFLARE_ACCOUNT_ID", "CF_ACCOUNT_ID"] },
-          "apiToken": { "type": "string", "description": "Cloudflare API token", "sensitive": true, "env": ["CLOUDFLARE_API_TOKEN", "CF_API_TOKEN"] }
-        },
-        "required": ["accountId", "apiToken"]
+          "accountId": { "type": "string", "description": "Cloudflare account ID", "env": ["CLOUDFLARE_ACCOUNT_ID"] },
+          "apiToken": { "type": "string", "description": "Cloudflare API token", "sensitive": true, "env": ["CLOUDFLARE_API_TOKEN"] }
+        }
       },
-      "tags": ["cloudflare", "workers", "kv", "pages", "dns", "edge", "cloud"],
+      "tags": ["cloudflare", "workers", "kv", "pages", "edge", "cloud"],
       "useCases": [
         "Manage Cloudflare KV storage as virtual filesystem",
         "Deploy and manage Cloudflare Workers",
@@ -147,7 +229,7 @@
     },
     {
       "name": "github",
-      "description": "GitHub Issues, Pull Requests, and Actions as virtual filesystem paths",
+      "description": "GitHub Issues, Pull Requests, and Actions",
       "category": "integration",
       "uriTemplate": "github://{owner}/{repo}",
       "schema": {
@@ -159,7 +241,7 @@
         },
         "required": ["owner"]
       },
-      "tags": ["github", "issues", "pull-requests", "actions", "devops", "integration"],
+      "tags": ["github", "git", "issues", "pull-requests", "actions", "integration"],
       "useCases": [
         "Access GitHub issues and PRs as files",
         "Create and manage issues programmatically",
@@ -169,7 +251,7 @@
     },
     {
       "name": "http",
-      "description": "HTTP/HTTPS transport for accessing remote AFS instances",
+      "description": "Remote AFS server via HTTP",
       "category": "integration",
       "uriTemplate": "http://{host+}",
       "schema": {
@@ -180,7 +262,7 @@
         },
         "required": ["host"]
       },
-      "tags": ["http", "https", "remote", "transport", "network", "integration"],
+      "tags": ["http", "remote", "transport", "network", "integration"],
       "useCases": [
         "Access remote AFS instances over HTTP",
         "Expose local AFS as HTTP service",
@@ -188,29 +270,88 @@
       ]
     },
     {
-      "name": "mcp",
-      "description": "MCP (Model Context Protocol) server integration for tools, prompts, and resources",
+      "name": "https",
+      "description": "Remote AFS server via HTTPS",
+      "category": "integration",
+      "uriTemplate": "https://{host+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "host": { "type": "string", "description": "Remote AFS server host and path" },
+          "token": { "type": "string", "description": "Bearer token for authentication", "sensitive": true }
+        },
+        "required": ["host"]
+      },
+      "tags": ["https", "remote", "transport", "network", "integration"],
+      "useCases": [
+        "Access remote AFS instances over HTTPS",
+        "Secure remote AFS connections with TLS",
+        "Bridge HTTPS endpoints to AFS interface"
+      ]
+    },
+    {
+      "name": "mcp-stdio",
+      "description": "MCP server via stdio transport",
       "category": "integration",
       "uriTemplate": "mcp+stdio://{command+}",
       "schema": {
         "type": "object",
         "properties": {
           "command": { "type": "string", "description": "MCP server command to execute" },
-          "args": { "type": "string", "description": "Command arguments (comma-separated)" }
+          "args": { "type": "array", "description": "Command arguments (supports comma-separated in URI: args=-y,@pkg)" },
+          "env": { "type": "object", "description": "Environment variables for the MCP server process (in URI: env=KEY=VALUE)" }
         },
         "required": ["command"]
       },
-      "tags": ["mcp", "model-context-protocol", "llm", "tools", "prompts", "ai", "integration"],
+      "tags": ["mcp", "model-context-protocol", "stdio", "llm", "tools", "ai", "integration"],
       "useCases": [
-        "Mount MCP servers as AFS modules",
+        "Mount MCP servers as AFS modules via stdio",
         "Execute LLM tools through AFS interface",
         "Access MCP prompts and resources",
-        "Generate WORLD.md documentation for MCP server capabilities"
+        "Pass environment variables securely to MCP servers"
+      ]
+    },
+    {
+      "name": "mcp-http",
+      "description": "MCP server via HTTP transport",
+      "category": "integration",
+      "uriTemplate": "mcp+http://{url+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "MCP server HTTP URL" }
+        },
+        "required": ["url"]
+      },
+      "tags": ["mcp", "model-context-protocol", "http", "llm", "tools", "ai", "integration"],
+      "useCases": [
+        "Connect to remote MCP servers over HTTP",
+        "Access cloud-hosted MCP tools and resources",
+        "Integrate with HTTP-based MCP server deployments"
+      ]
+    },
+    {
+      "name": "mcp-sse",
+      "description": "MCP server via SSE transport",
+      "category": "integration",
+      "uriTemplate": "mcp+sse://{url+}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "MCP server SSE URL" }
+        },
+        "required": ["url"]
+      },
+      "tags": ["mcp", "model-context-protocol", "sse", "llm", "tools", "ai", "integration"],
+      "useCases": [
+        "Connect to MCP servers via Server-Sent Events",
+        "Stream-based MCP server communication",
+        "Real-time MCP tool execution over SSE"
       ]
     },
     {
       "name": "sandbox",
-      "description": "Isolated JavaScript code execution with script management and auditing",
+      "description": "Sandboxed JavaScript execution environment for LLM-generated code",
       "category": "compute",
       "uriTemplate": "sandbox://",
       "schema": {
@@ -226,19 +367,38 @@
       ]
     },
     {
-      "name": "playwright",
-      "description": "Browser automation via Playwright MCP server — interact with web pages through accessibility snapshots and screenshots",
-      "category": "integration",
-      "uriTemplate": "mcp+stdio://npx",
+      "name": "workspace",
+      "description": "Workspace container with sub-mounts",
+      "category": "composite",
+      "uriTemplate": "workspace://{localPath+}",
       "schema": {
         "type": "object",
         "properties": {
-          "browser": { "type": "string", "enum": ["chromium", "firefox", "webkit"], "description": "Browser engine to use (default: chromium)" },
-          "headless": { "type": "string", "enum": ["true", "false"], "description": "Run browser in headless mode (default: false, headed)" },
-          "viewportSize": { "type": "string", "description": "Browser viewport size (e.g., 1280x720)" },
+          "localPath": { "type": "string", "description": "Path to the workspace directory" }
+        },
+        "required": ["localPath"]
+      },
+      "tags": ["workspace", "composite", "container"],
+      "useCases": [
+        "Group multiple providers under a workspace",
+        "Auto-discover and mount providers from workspace config",
+        "Organize multi-source data access under a single path"
+      ]
+    },
+    {
+      "name": "playwright",
+      "description": "Browser automation via Playwright MCP server — interact with web pages through accessibility snapshots and screenshots",
+      "category": "integration",
+      "uriTemplate": "mcp+stdio://npx?args=-y,@playwright/mcp",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "browser": { "type": "string", "description": "Browser engine: chromium, firefox, or webkit (default: chromium)" },
+          "headless": { "type": "string", "description": "Run in headless mode: true or false (default: false)" },
+          "viewport": { "type": "string", "description": "Browser viewport size (e.g., 1280x720)" },
+          "device": { "type": "string", "description": "Emulate a device (e.g., iPhone 15, Pixel 7)" },
           "userDataDir": { "type": "string", "description": "Path to persistent browser profile directory" },
-          "storageState": { "type": "string", "description": "Path to file with cookies and localStorage to restore session" },
-          "device": { "type": "string", "description": "Emulate a device (e.g., iPhone 15, Pixel 7)" }
+          "storageState": { "type": "string", "description": "Path to file with cookies and localStorage to restore session" }
         }
       },
       "tags": ["playwright", "browser", "automation", "testing", "web", "screenshots", "accessibility", "mcp"],
@@ -253,7 +413,7 @@
       "name": "minecraft",
       "description": "Minecraft server management and bot control via Mineflayer — connect to servers, navigate, interact with blocks and entities, manage inventory",
       "category": "integration",
-      "uriTemplate": "mcp+stdio://npx",
+      "uriTemplate": "mcp+stdio://npx?args=-y,mineflayer-mcp-server",
       "schema": {
         "type": "object",
         "properties": {
