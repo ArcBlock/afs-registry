@@ -42,7 +42,7 @@
     },
     "ProviderManifest": {
       "type": "object",
-      "required": ["name", "description", "category", "uri", "capabilities_summary"],
+      "required": ["name", "description", "category", "uriTemplate"],
       "properties": {
         "name": {
           "type": "string",
@@ -63,25 +63,24 @@
             "structured-data",
             "compute",
             "composite",
-            "cloud",
+            "cloud-storage",
+            "cloud-compute",
+            "cloud-dns",
+            "cloud-platform",
+            "integration",
             "network",
             "api"
           ],
           "description": "Provider category"
         },
-        "uri": {
+        "uriTemplate": {
           "type": "string",
           "minLength": 1,
-          "description": "Base URI for mounting. Agent appends schema params as query string."
-        },
-        "capabilities_summary": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Summary of provider capabilities"
+          "description": "URI template with {param} placeholders for mounting"
         },
         "schema": {
           "type": "object",
-          "description": "JSON Schema describing dynamic parameters the agent must provide. Each property may include 'sensitive' (boolean) and 'env' (string[]) for credential management. Omit if the URI is ready to use as-is.",
+          "description": "JSON Schema describing provider parameters. Properties may include 'sensitive' (boolean) and 'env' (string[]) for credential management.",
           "properties": {
             "type": { "type": "string", "const": "object" },
             "properties": {
@@ -103,7 +102,7 @@
           },
           "description": "Searchable tags"
         },
-        "use_cases": {
+        "useCases": {
           "type": "array",
           "items": {
             "type": "string"
