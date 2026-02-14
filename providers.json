@@ -141,7 +141,8 @@
         "properties": {
           "accountId": { "type": "string", "description": "Cloudflare account ID", "env": ["CLOUDFLARE_ACCOUNT_ID", "CF_ACCOUNT_ID"] },
           "apiToken": { "type": "string", "description": "Cloudflare API token", "sensitive": true, "env": ["CLOUDFLARE_API_TOKEN", "CF_API_TOKEN"] }
-        }
+        },
+        "required": ["accountId", "apiToken"]
       },
       "tags": ["cloudflare", "workers", "kv", "pages", "dns", "edge", "cloud"],
       "use_cases": [
