@@ -410,6 +410,27 @@
       ]
     },
     {
+      "name": "aignehub",
+      "description": "AigneHub AI Model Gateway — discover and run AI models across 12+ providers",
+      "category": "api",
+      "uriTemplate": "aignehub://{host?}",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "host": { "type": "string", "description": "AigneHub server host (default: hub.aigne.io)" },
+          "apiKey": { "type": "string", "description": "AigneHub API key", "sensitive": true, "env": ["AIGNE_HUB_API_KEY"] }
+        },
+        "required": ["apiKey"]
+      },
+      "tags": ["ai", "llm", "model", "aignehub", "openai", "anthropic", "inference", "gateway"],
+      "useCases": [
+        "Browse available AI models across multiple providers (OpenAI, Anthropic, Google, etc.)",
+        "Run chat, image, and video inference through unified interface",
+        "Compare model pricing and availability across providers",
+        "Execute AI inference via AFS exec actions"
+      ]
+    },
+    {
       "name": "minecraft",
       "description": "Minecraft server management and bot control via Mineflayer — connect to servers, navigate, interact with blocks and entities, manage inventory",
       "category": "integration",
