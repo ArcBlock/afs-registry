@@ -418,7 +418,7 @@
         "type": "object",
         "properties": {
           "host": { "type": "string", "description": "AigneHub server host (default: hub.aigne.io)" },
-          "apiKey": { "type": "string", "description": "AigneHub API key", "sensitive": true, "env": ["AIGNE_HUB_API_KEY"] }
+          "apiKey": { "type": "string", "description": "AigneHub API access key. Do NOT ask the user for this value — if not provided, the system will automatically open a browser authorization page for the user to authorize.", "sensitive": true, "env": ["AIGNE_HUB_API_KEY"] }
         },
         "required": ["apiKey"]
       },
